@@ -2,6 +2,7 @@ import React from 'react';
 import Carousel from "../components/Carousel.jsx";
 import { Link } from 'react-router-dom';
 import { ImFire } from 'react-icons/im'; // Ensure the ImFire icon is imported
+import { useEffect,useState } from 'react';
 
 const Dashboard = () => {
   // Define topics and progress data
@@ -29,7 +30,20 @@ const Dashboard = () => {
     { id: 5, count: 9 }
   ];
 
-  const heading="Dashboard"
+  const heading="Dashboard";
+
+  const [animatedProgress, setAnimatedProgress] = useState(
+    progress.map(() => 0) 
+  );
+
+  useEffect(() => {
+   
+    const timeoutId = setTimeout(() => {
+      setAnimatedProgress(progress.map(item => item.value));
+    }, 500); 
+
+    return () => clearTimeout(timeoutId); 
+  }, [progress]);
 
   return (
     <>
@@ -75,15 +89,18 @@ const Dashboard = () => {
             </div>
 
             {/* Grid layout for large screens */}
-            <div className="hidden md:grid md:grid-cols-5 md:gap-8 md:mt-8 lg:mt-24">
+            <div className={`hidden md:grid md:grid-cols-${animatedProgress.length} md:gap-8 md:mt-8 lg:mt-24`}>
               {progress.map((item, index) => (
                 <div key={index} className="text-center">
                   <div
                     className="radial-progress bg-[#e4e2e2] text-primary-content border-[#e4e2e2] border-4 mx-auto"
-                    style={{ "--value": item.value }}
+                    style={{ 
+                      "--value": animatedProgress[index], 
+                      "transition": "var(--value) 2s ease" 
+                    }}
                     role="progressbar"
                   >
-                    {item.value}%
+                    {animatedProgress[index]}%
                   </div>
                   <p className='text-xl mt-4'>{item.label}</p>
                 </div>
