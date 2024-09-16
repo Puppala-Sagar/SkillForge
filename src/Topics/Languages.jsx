@@ -41,7 +41,7 @@ const Languages = () => {
 
     return () => clearTimeout(timeoutId); // Cleanup function
   }, [progress]);
-  
+
   return (
     <>
       <div>
@@ -93,7 +93,7 @@ const Languages = () => {
                     className="radial-progress bg-[#e4e2e2] text-primary-content border-[#e4e2e2] border-4 mx-auto"
                     style={{ 
                       "--value": animatedProgress[index], 
-                      "transition": "var(--value) 2s ease" // Add CSS transition for smooth animation
+                      "transition": "var(--value) 5s ease" // Add CSS transition for smooth animation
                     }}
                     role="progressbar"
                   >

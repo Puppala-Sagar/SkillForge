@@ -61,10 +61,19 @@
 // };
 
 // export default Carousel;
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const Carousel = ({progress}) => {
+const Carousel = ({ progress }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isLoading, setIsLoading] = useState(true); // To control the initial load animation
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setIsLoading(false); // After the page loads, stop the loading effect
+    }, 300); // You can adjust the delay
+
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   // Function for the previous slide
   const prevSlide = () => {
@@ -79,7 +88,7 @@ const Carousel = ({progress}) => {
   return (
     <div className="relative w-full max-w-lg mx-auto overflow-hidden">
       <div
-        className="flex transition-transform ease-out duration-500"
+        className={`flex transition-transform duration-1000 ease-in-out ${isLoading ? 'opacity-0 translate-y-10' : 'opacity-100 translate-y-0'}`}
         style={{ transform: `translateX(-${currentSlide * 100}%)` }}
       >
         {progress.map((item, index) => (
