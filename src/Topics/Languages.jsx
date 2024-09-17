@@ -10,7 +10,7 @@ const Languages = () => {
     { path: "/c", label: "C" },
     { path: "/Java", label: "JAVA" },
     { path: "/python", label: "PYTHON" },
-    { path: "/c++", label: "C++" }
+    { path: "/cplusplus", label: "C++" }
   ];
 
   const progress = [
@@ -30,17 +30,18 @@ const Languages = () => {
   const heading = "LANGUAGES";
 
   const [animatedProgress, setAnimatedProgress] = useState(
-    progress.map(() => 0) // Initial state with all progress values set to 0
+    progress.map(() => 0) 
   );
 
   useEffect(() => {
-    // Animate the progress after the component is mounted
+    
     const timeoutId = setTimeout(() => {
       setAnimatedProgress(progress.map(item => item.value));
-    }, 500); // delay for the animation
+    }, 500); 
 
-    return () => clearTimeout(timeoutId); // Cleanup function
+    return () => clearTimeout(timeoutId); 
   }, [progress]);
+  
 
   return (
     <>
@@ -80,7 +81,7 @@ const Languages = () => {
             <div className="md:hidden flex flex-col justify-center mt-8 md:mt-24">
               <div className="overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4" style={{ scrollBehavior: 'smooth' }}>
                 <div className="flex space-x-4 justify-start items-center">
-                  <Carousel progress={progress} /> {/* Pass progress as props */}
+                  <Carousel progress={progress} /> 
                 </div>
               </div>
             </div>
@@ -93,7 +94,7 @@ const Languages = () => {
                     className="radial-progress bg-[#e4e2e2] text-primary-content border-[#e4e2e2] border-4 mx-auto"
                     style={{ 
                       "--value": animatedProgress[index], 
-                      "transition": "var(--value) 5s ease" // Add CSS transition for smooth animation
+                      "transition": "var(--value) 2s ease" // Add CSS transition for smooth animation
                     }}
                     role="progressbar"
                   >

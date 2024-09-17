@@ -8,6 +8,7 @@ import Languages from './Topics/Languages.jsx';
 import Backend from './Topics/Backend.jsx';
 import MachineLearning from './Topics/MachineLearning.jsx';
 import Aptitude from './Topics/Aptitude.jsx';
+import Cplusplus from './components/Content/Language/CplusPlus.jsx';
 
 const App = () => {
   return (
@@ -25,6 +26,9 @@ const App = () => {
             <Route path="/backend" element={<Backend />} />
             <Route path="/machine-learning" element={<MachineLearning />} />
             <Route path="/aptitude" element={<Aptitude />} />
+
+            {/* Content  */}
+            <Route path="/cplusplus" element={<Cplusplus />} />
           </Routes>
 
           
