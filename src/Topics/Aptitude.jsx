@@ -3,6 +3,7 @@ import Carousel from "../components/Carousel.jsx";
 import { Link } from 'react-router-dom';
 import { ImFire } from 'react-icons/im';
 import { useEffect,useState } from 'react';
+import ProgressBar from '../components/ProgressBar.jsx';
 
 const Aptitude = () => {
     const topics = [
@@ -25,17 +26,17 @@ const Aptitude = () => {
     
     const heading="Aptitude"
 
-    const [animatedProgress, setAnimatedProgress] = useState(
-      progress.map(() => 0) 
-    );
+    // const [animatedProgress, setAnimatedProgress] = useState(
+    //   progress.map(() => 0) 
+    // );
   
-    useEffect(() => {
+    // useEffect(() => {
       
-      const timeoutId = setTimeout(() => {
-        setAnimatedProgress(progress.map(item => item.value));
-      }, 500); 
-      return () => clearTimeout(timeoutId); 
-    }, [progress]);
+    //   const timeoutId = setTimeout(() => {
+    //     setAnimatedProgress(progress.map(item => item.value));
+    //   }, 500); 
+    //   return () => clearTimeout(timeoutId); 
+    // }, [progress]);
 
     return (
         <div>
@@ -81,23 +82,9 @@ const Aptitude = () => {
                   </div>
                 </div>
                 {/* Grid layout for large screens */}
-                <div className={`hidden md:grid md:grid-cols-${animatedProgress.length} md:gap-8 md:mt-8 lg:mt-24`}>
-              {progress.map((item, index) => (
-                <div key={index} className="text-center">
-                  <div
-                    className="radial-progress bg-[#e4e2e2] text-primary-content border-[#e4e2e2] border-4 mx-auto"
-                    style={{ 
-                      "--value": animatedProgress[index], 
-                      "transition": "var(--value) 2s ease" 
-                    }}
-                    role="progressbar"
-                  >
-                    {animatedProgress[index]}%
-                  </div>
-                  <p className='text-xl mt-4'>{item.label}</p>
+                <div className={`hidden md:grid md:grid-cols-3 md:gap-8 md:mt-8 lg:mt-24`}>
+                  <ProgressBar progress={progress}/>
                 </div>
-              ))}
-            </div>
             </div>
           </div>
         </div>
