@@ -1,14 +1,15 @@
 import React from 'react';
 import Navbar from './components/Navbar';
 import LandingPage from './pages/LandingPage';
-import { Routes, Route, BrowserRouter } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
-import Frontend from './Topics/Frontend.jsx';
-import Languages from './Topics/Languages.jsx';
-import Backend from './Topics/Backend.jsx';
-import MachineLearning from './Topics/MachineLearning.jsx';
-import Aptitude from './Topics/Aptitude.jsx';
-import Cplusplus from './components/Content/Language/CplusPlus.jsx';
+import Frontend from './pages/Topics/Frontend.jsx';
+import Languages from './pages/Topics/Languages.jsx';
+import Backend from './pages/Topics/Backend.jsx';
+import MachineLearning from './pages/Topics/MachineLearning.jsx';
+import Aptitude from './pages/Topics/Aptitude.jsx';
+import Topic from './components/Topic.jsx';
+import Content from './components/Content.jsx';
 
 const App = () => {
   return (
@@ -26,9 +27,8 @@ const App = () => {
             <Route path="/backend" element={<Backend />} />
             <Route path="/machine-learning" element={<MachineLearning />} />
             <Route path="/aptitude" element={<Aptitude />} />
-
-            {/* Content  */}
-            <Route path="/cplusplus" element={<Cplusplus />} />
+            <Route path="/topic" element={<Topic />} />
+            <Route path="/content" element={<Content />} />
           </Routes>
 
           
