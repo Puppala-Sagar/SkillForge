@@ -42,7 +42,7 @@ const App = () => {
 
         <div className="flex-grow">
           <Routes>
-            <Route path="/" element={<LandingPage />} />
+            <Route path="/welcome" element={<LandingPage />} />
             <Route
               path="/dashboard"
               element={
@@ -100,7 +100,7 @@ const App = () => {
               }
             />
             <Route
-              path="/login"
+              path="/"
               element={
                 <ProtectedRoute condition={false}>
                   <Login />

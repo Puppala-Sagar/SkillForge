@@ -7,8 +7,8 @@ import { useAuth } from './services/AuthService';
 const ProtectedRoute = ({ children, condition }) => {
   const { isAuthenticated } = useAuth();
   // console.log(isAuthenticated);
-  if (condition) return isAuthenticated ? children : <Navigate to="/login" />;
-  else return isAuthenticated ? <Navigate to="/" /> : children;
+  if (condition) return isAuthenticated ? children : <Navigate to="/" />;
+  else return isAuthenticated ? <Navigate to="/welcome" /> : children;
 };
 
 export default ProtectedRoute;
