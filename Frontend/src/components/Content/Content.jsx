@@ -16,7 +16,7 @@ import { VscFeedback } from "react-icons/vsc";
 import { FaStar } from "react-icons/fa";
 import Carousel from "../Carousel/Carousel";
 import GenerateContent from "../GenerateContent/GenerateContent";
-import Quiz from "../Quiz/quizGenerator";
+import Quiz from "../Quiz/QuizGenerator";
 import Navbar from "../Navbar/Navbar";
 import Progress from "../Progress/Progress";
 import Topic from "../Topic/Topic";

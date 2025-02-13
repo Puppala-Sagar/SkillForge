@@ -8,11 +8,11 @@ const cors = require('cors');
 const app = express();
 
 app.use(express.json());
-app.use(cors({
-    origin:["https://skill-forge-delta.vercel.app"],
-    methods:["POST","GET"],
-    credentials:true
-}));
+// Allow requests from your frontend
+app.use(cors({ origin: "https://localhost:5173", credentials: true }));
+
+// Handle preflight requests
+app.options("*", cors());
 
 app.use(authMiddleware);
 app.use('/api', userRoutes);
