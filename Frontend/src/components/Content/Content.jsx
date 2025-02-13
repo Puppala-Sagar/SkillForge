@@ -103,7 +103,7 @@ const Content = () => {
 
     // Send the feedback data to the server
     axios
-      .post("http://localhost:3000/api/add-feedback", {
+      .post("https://skill-forge-delta.vercel.app/api/add-feedback", {
         name,
         email,
         subject,

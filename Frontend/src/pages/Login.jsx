@@ -19,7 +19,7 @@ const Login = () => {
     // console.log(isAuthenticated);
 
     axios
-      .post("http://localhost:3000/api/login", { email, password })
+      .post("https://skill-forge-delta.vercel.app/api/login", { email, password })
       .then(async (response) => {
         // console.log(response);
         localStorage.setItem("token", response.data.token);
