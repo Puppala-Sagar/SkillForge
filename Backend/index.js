@@ -8,11 +8,13 @@ const cors = require('cors');
 const app = express();
 
 app.use(express.json());
-// Allow requests from your frontend
-app.use(cors({ origin: "https://skill-forge-app-git-main-puppala-sagars-projects.vercel.app", credentials: true }));
+const cors = require('cors');
+app.use(cors({
+  origin: ['https://skill-forge-app.vercel.app', 'https://skill-forge-app-git-main-puppala-sagars-projects.vercel.app'],
+  methods: 'GET,POST,PUT,DELETE',
+  credentials: true
+}));
 
-// Handle preflight requests
-app.options("*", cors());
 
 app.use(authMiddleware);
 app.use('/api', userRoutes);
