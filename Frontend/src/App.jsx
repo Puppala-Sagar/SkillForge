@@ -12,7 +12,7 @@ import GenerateContent from "./components/GenerateContent/GenerateContent";
 import NotFound from "./pages/NotFound.jsx";
 import Carousel from "./components/Carousel/Carousel";
 import Progress from "./components/Progress/Progress";
-import Sample from "./Sample.jsx";
+// import Sample from "./Sample.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import { ToastContainer } from "react-toastify";
@@ -115,7 +115,7 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
-            <Route path="/sample" element={<Sample />} />
+            {/* <Route path="/sample" element={<Sample />} /> */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
