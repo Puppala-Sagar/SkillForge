@@ -12,7 +12,7 @@ app.use(cors());
 
 app.use(authMiddleware);
 app.use('/api', userRoutes);
-app.get('/',(req,res)=> res.send("hello");
+app.get('/',(req,res)=> res.send("hello"));
 mongoose.connect(config.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
         console.log('Connected to MongoDB');
