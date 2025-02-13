@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 const cors = require('cors');
 app.use(cors({
-  origin: ['https://skill-forge-app.vercel.app'],
+  origin: ['*'],
   methods: 'GET,POST,PUT,DELETE',
   credentials: true
 }));
