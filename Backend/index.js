@@ -9,7 +9,7 @@ const app = express();
 
 app.use(express.json());
 // Allow requests from your frontend
-app.use(cors({ origin: "https://localhost:5173", credentials: true }));
+app.use(cors({ origin: "https://skill-forge-app-git-main-puppala-sagars-projects.vercel.app/", credentials: true }));
 
 // Handle preflight requests
 app.options("*", cors());
