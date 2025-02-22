@@ -7,7 +7,7 @@ import Progress from '../Progress/Progress';
 import Topic from '../Topic/Topic';
 import { useAuth } from '../../services/AuthService';
 import Streak from "../Streak";
-
+import { AiFillFire } from "react-icons/ai";
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -159,14 +159,7 @@ const Navbar = () => {
                 Dashboard
               </Link>
             </li>
-            <li>
-              <Link
-              to="/streak"
-              onClick={() => navigateTo('/streak')}
-              >
-                Streak
-              </Link>
-            </li>
+        
             <li>
               <Link
                 to="/about"
@@ -192,6 +185,16 @@ const Navbar = () => {
               >
                 Contact
               </Link>
+            </li>
+            <li>
+              <Link
+              to="/streak"
+              onClick={() => navigateTo('/streak')}
+              >
+                {/* <AiFillFire size={25} color="red"/> */}
+                <span style={{ fontSize: "20px" }}>🔥</span>
+              </Link>
+
             </li>
           </ul>
         </div>
