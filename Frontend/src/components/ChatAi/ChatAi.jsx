@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React,{ useState, useEffect, useRef } from "react";
 import Groq from "groq-sdk";
 import "./ChatAi.css"; // Chatbot-specific styling
 import ReactMarkdown from "react-markdown";

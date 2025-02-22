@@ -34,7 +34,7 @@ const Signup = () => {
     console.log(formData);
 
     await axios
-      .post("https://skill-forge-delta.vercel.app/api/signup", formData)
+      .post("http://localhost:3000/api/signup", formData)
       .then((response) => {
         // console.log(response);
         toast.success(response.data.message, { autoClose: 1000 });

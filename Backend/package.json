@@ -14,12 +14,13 @@
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "express": "^4.21.1",
+    "groq": "^3.76.3",
+    "groq-sdk": "^0.15.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.7.1"
+    "mongoose": "^8.7.1",
+    "node-schedule": "^2.1.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.7"
   }
-
 }
-

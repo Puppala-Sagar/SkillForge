@@ -1,3 +1,5 @@
+import React from 'react';
+
 const NotFound = () => {
     return (
         <div className="min-h-screen flex flex-col justify-center items-center">

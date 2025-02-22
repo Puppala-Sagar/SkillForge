@@ -17,4 +17,8 @@ router.post('/add-badges', userController.addBadges);
 router.get('/get-tasks/:email', userController.getTasks);
 router.post('/add-task', userController.addTask);
 
+//streak
+
+router.get("/questions",userController.getStreakQuestions);
+router.post("/submit-answer",userController.submitStreakAnswers);
 module.exports = router;

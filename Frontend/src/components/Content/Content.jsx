@@ -16,7 +16,7 @@ import { VscFeedback } from "react-icons/vsc";
 import { FaStar } from "react-icons/fa";
 import Carousel from "../Carousel/Carousel";
 import GenerateContent from "../GenerateContent/GenerateContent";
-import Quiz from "../Quiz/QuizGenerator";
+import Quiz from "../Quiz/quizGenerator";
 import Navbar from "../Navbar/Navbar";
 import Progress from "../Progress/Progress";
 import Topic from "../Topic/Topic";
@@ -103,7 +103,7 @@ const Content = () => {
 
     // Send the feedback data to the server
     axios
-      .post("https://skill-forge-delta.vercel.app/api/add-feedback", {
+      .post("http://localhost:3000/api/add-feedback", {
         name,
         email,
         subject,

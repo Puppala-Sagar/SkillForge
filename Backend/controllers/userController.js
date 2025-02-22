@@ -8,6 +8,14 @@ const Task = require('../models/tasksModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+
+const nodeSchedule = require("node-schedule");
+const Groq = require("groq-sdk");
+const Question = require('../models/streakQuestionsModel');
+const UserStreak = require('../models/userStreakModel')
+
+
+
 const SECRET_KEY = 'd8be994c77d05f0b6e22949d6b21ca871c46f52839bc9630ce1d028e30231945'; // Replace with your secret key
 
 exports.getSubtopics = async (req, res) => {
@@ -174,3 +182,142 @@ exports.getTasks = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+
+
+const groq = new Groq({ apiKey: "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" });
+
+const fetchAndStoreQuestions = async () => {
+  const topics = ["ML", "Programming", "Aptitude", "Web Dev"];
+  const subject = "Computer Science";
+  const today = new Date().toISOString().split("T")[0];
+
+  try {
+    // 🧹 Step 1: Delete existing questions
+    await Question.deleteMany({});
+    console.log("🗑️ Old questions cleared from database.");
+
+    for (const topic of topics) {
+      const response = await groq.chat.completions.create({
+        messages: [
+          {
+            role: "user",
+            content: `You are a professional ${subject} teacher.
+                      Generate exactly 1 multiple-choice question (MCQ) for ${topic} within ${subject}.
+                      Format:
+                      [
+                          {
+                              "question": "What is ...?",
+                              "options": ["option 1", "option 2", "option 3", "option 4"],
+                              "correctAnswer": "correct option"
+                          },
+                          ...
+                      ]
+                      Return ONLY a valid JSON array with NO extra text.`,
+          },
+        ],
+        model: "llama3-8b-8192",
+      });
+
+      let responseString = response.choices[0].message.content;
+
+      try {
+        responseString = responseString.replace(/\\"/g, '"').replace(/\\n/g, "");
+        const quizArray = JSON.parse(responseString);
+
+        if (Array.isArray(quizArray) && quizArray.length === 1) {
+          quizArray.forEach(async (q) => {
+            const newQuestion = new Question({
+              topic,
+              question: q.question,
+              options: q.options,
+              correctAnswer: q.correctAnswer,
+              date: today,
+            });
+            await newQuestion.save();
+          });
+
+          console.log(`✅ Successfully stored ${topic} questions.`);
+        } else {
+          console.error(`❌ Invalid response format for ${topic}`);
+        }
+      } catch (err) {
+        console.error(`❌ Error parsing response for ${topic}:`, err);
+      }
+    }
+  } catch (error) {
+    console.error("❌ API Request Error:", error);
+  }
+};
+
+// ⏳ Schedule job to run every 1 minute
+nodeSchedule.scheduleJob("0 0 * * *", fetchAndStoreQuestions);
+
+exports.getStreakQuestions = async (req, res) => {
+    const today = new Date().toISOString().split("T")[0];
+    const questions = await Question.find({ date: today });
+  
+    if (questions.length === 0) {
+      await fetchAndStoreQuestions();
+      return res.json({ message: "Fetching new questions..." });
+    }
+  
+    res.json(questions);
+  };
+
+
+  exports.submitStreakAnswers =  async (req, res) => {
+    const { userId, answers } = req.body;
+    const today = new Date().toISOString().split("T")[0];
+  
+    let user = await UserStreak.findOne({ userId });
+  
+    if (!user) {
+      user = new UserStreak({ userId, streak: 0, lastAnsweredDate: null });
+    }
+  
+    const lastAnsweredDate = user.lastAnsweredDate
+      ? user.lastAnsweredDate.toISOString().split("T")[0]
+      : null;
+  
+    // If user already answered today, don't let them submit again
+    if (lastAnsweredDate === today) {
+      return res.json({
+        message: "❌ You already answered today.",
+        streak: user.streak,
+      });
+    }
+  
+    const questions = await Question.find({ date: today });
+  
+    let correctCount = 0;
+    questions.forEach((q) => {
+      if (answers[q.topic] === q.correctAnswer) correctCount++;
+    });
+  
+    if (correctCount === questions.length) {
+      // Check if the user answered yesterday
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split("T")[0];
+  
+      if (lastAnsweredDate === yesterdayStr) {
+        user.streak += 1; // Continue streak
+      } else {
+        user.streak = 1; // Reset streak if missed a day
+      }
+  
+      user.lastAnsweredDate = new Date();
+      await user.save();
+  
+      return res.json({ message: "✅ Correct! Streak increased.", streak: user.streak });
+    } else {
+      // Reset streak on incorrect answer
+      user.streak = 0;
+      user.lastAnsweredDate = new Date();
+      await user.save();
+  
+      return res.json({ message: "❌ Some answers were incorrect. Streak reset.", streak: 0 });
+    }
+  }  
+  

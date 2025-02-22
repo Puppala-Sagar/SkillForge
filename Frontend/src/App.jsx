@@ -12,13 +12,15 @@ import GenerateContent from "./components/GenerateContent/GenerateContent";
 import NotFound from "./pages/NotFound.jsx";
 import Carousel from "./components/Carousel/Carousel";
 import Progress from "./components/Progress/Progress";
-// import Sample from "./Sample.jsx";
+import Sample from "./Sample.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import CSS
 import ProtectedRoute from "./ProtectedRoute";
 import { useAuth } from "./services/AuthService";
+import Streak from "./components/Streak";
+
 
 const App = () => {
   const { isAuthenticated } = useAuth();
@@ -42,7 +44,7 @@ const App = () => {
 
         <div className="flex-grow">
           <Routes>
-            <Route path="/welcome" element={<LandingPage />} />
+            <Route path="/" element={<LandingPage />} />
             <Route
               path="/dashboard"
               element={
@@ -50,6 +52,14 @@ const App = () => {
                   <Dashboard />
                 </ProtectedRoute>
               }
+            />
+            <Route
+            path="/streak"
+            element={
+              <ProtectedRoute condition={true}>
+                <Streak/>
+              </ProtectedRoute>
+            }
             />
             <Route
               path="/languages"
@@ -100,7 +110,7 @@ const App = () => {
               }
             />
             <Route
-              path="/"
+              path="/login"
               element={
                 <ProtectedRoute condition={false}>
                   <Login />
@@ -115,7 +125,7 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
-            {/* <Route path="/sample" element={<Sample />} /> */}
+            <Route path="/sample" element={<Sample />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

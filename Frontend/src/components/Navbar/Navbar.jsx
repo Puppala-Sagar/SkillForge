@@ -6,6 +6,7 @@ import GenerateContent from '../GenerateContent/GenerateContent';
 import Progress from '../Progress/Progress';
 import Topic from '../Topic/Topic';
 import { useAuth } from '../../services/AuthService';
+import Streak from "../Streak";
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -156,6 +157,14 @@ const Navbar = () => {
                 onClick={() => navigateTo('/dashboard')}
               >
                 Dashboard
+              </Link>
+            </li>
+            <li>
+              <Link
+              to="/streak"
+              onClick={() => navigateTo('/streak')}
+              >
+                Streak
               </Link>
             </li>
             <li>
