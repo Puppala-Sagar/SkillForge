@@ -1,10 +1,9 @@
 const mongoose = require('mongoose');
 
-const userSchema = new mongoose.Schema({
-    userId: String,
+const userStreakSchema = new mongoose.Schema({
+    email: { type: String, required: true, unique: true },
     streak: { type: Number, default: 0 },
-    lastAnsweredDate: { type: Date, default: null },
-  });
+    lastUpdated: { type: Date, default: null }  // ✅ Added lastUpdated field
+});
 
-module.exports =  mongoose.model("UserStreak", userSchema);
-
+module.exports = mongoose.model("UserStreak", userStreakSchema);

@@ -14,6 +14,11 @@ const Groq = require("groq-sdk");
 const Question = require('../models/streakQuestionsModel');
 const UserStreak = require('../models/userStreakModel')
 
+const  Session = require('../models/interviewSessionModel');
+const  Interview = require('../models/interviewHistoryModel');
+
+
+
 
 
 const SECRET_KEY = 'd8be994c77d05f0b6e22949d6b21ca871c46f52839bc9630ce1d028e30231945'; // Replace with your secret key
@@ -256,6 +261,8 @@ nodeSchedule.scheduleJob("0 0 * * *", fetchAndStoreQuestions);
 exports.getStreakQuestions = async (req, res) => {
     const today = new Date().toISOString().split("T")[0];
     const questions = await Question.find({ date: today });
+
+
   
     if (questions.length === 0) {
       await fetchAndStoreQuestions();
@@ -266,58 +273,273 @@ exports.getStreakQuestions = async (req, res) => {
   };
 
 
-  exports.submitStreakAnswers =  async (req, res) => {
-    const { userId, answers } = req.body;
-    const today = new Date().toISOString().split("T")[0];
+exports.getStreak = async (req, res) => {
+    const { email } = req.query;
   
-    let user = await UserStreak.findOne({ userId });
+    console.log("Received email:", email); // Log the incoming email query
   
-    if (!user) {
-      user = new UserStreak({ userId, streak: 0, lastAnsweredDate: null });
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
     }
   
-    const lastAnsweredDate = user.lastAnsweredDate
-      ? user.lastAnsweredDate.toISOString().split("T")[0]
-      : null;
+    try {
+      // Use the correct database and collection
+      const user = await UserStreak.findOne({ email });
   
-    // If user already answered today, don't let them submit again
-    if (lastAnsweredDate === today) {
-      return res.json({
-        message: "❌ You already answered today.",
-        streak: user.streak,
-      });
-    }
-  
-    const questions = await Question.find({ date: today });
-  
-    let correctCount = 0;
-    questions.forEach((q) => {
-      if (answers[q.topic] === q.correctAnswer) correctCount++;
-    });
-  
-    if (correctCount === questions.length) {
-      // Check if the user answered yesterday
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split("T")[0];
-  
-      if (lastAnsweredDate === yesterdayStr) {
-        user.streak += 1; // Continue streak
-      } else {
-        user.streak = 1; // Reset streak if missed a day
+      if (!user) {
+        console.log("User not found:", email); // Log if user is not found
+        return res.status(404).json({ message: "User not found" });
       }
   
-      user.lastAnsweredDate = new Date();
-      await user.save();
-  
-      return res.json({ message: "✅ Correct! Streak increased.", streak: user.streak });
-    } else {
-      // Reset streak on incorrect answer
-      user.streak = 0;
-      user.lastAnsweredDate = new Date();
-      await user.save();
-  
-      return res.json({ message: "❌ Some answers were incorrect. Streak reset.", streak: 0 });
+      console.log("User found:", user); // Log the user found and their streak
+      res.json({ streak: user.streak });
+    } catch (error) {
+      console.error("Error fetching streak:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
-  }  
+  }
+
+
+exports.submitStreakAnswers = async (req, res) => {
+    try {
+        console.log("Received payload:", req.body);
+        const { email, answers } = req.body;
+
+        if (!email || !answers || Object.keys(answers).length === 0) {
+            return res.status(400).json({ message: "Missing email or answers" });
+        }
+
+        let user = await UserStreak.findOne({ email });
+
+        console.log(user)
+
+        if (!user) {
+            console.log("Creating new user streak entry");
+            user = new UserStreak({ email, streak: 0, lastUpdated: null });
+        }
+
+        const today = new Date().toISOString().split("T")[0];
+        const lastUpdated = user.lastUpdated ? user.lastUpdated.toISOString().split("T")[0] : null;
+
+        console.log("Today:", today, "| Last Updated:", lastUpdated);
+
+        // If already updated today, return
+        if (lastUpdated === today) {
+            console.log("⏳ Streak already updated today!");
+            return res.json({ message: "❌ Streak already updated today! Try again tomorrow.", streak: user.streak });
+        }
+
+        // Fetch correct answers from database
+        const questions = await Question.find({});
+        const correctAnswers = {};
+        questions.forEach(q => {
+            correctAnswers[q.topic] = q.correctAnswer.toLowerCase().trim(); // Normalize comparison
+        });
+
+        console.log("🔹 Expected Answers:", correctAnswers);
+        console.log("🔸 User Answers:", answers);
+
+        // Validate answers
+        let allCorrect = Object.keys(correctAnswers).every(topic =>
+            answers[topic] && answers[topic].toLowerCase().trim() === correctAnswers[topic]
+        );
+
+        if (allCorrect) {
+            user.streak += 1; // ✅ Increment streak
+            user.lastUpdated = new Date(); // ✅ Update lastUpdated field
+
+            console.log("✅ Streak updated! New streak:", user.streak);
+
+            // Save user streak updates to database
+            await user.save(); 
+
+            return res.json({ message: "✅ Streak updated!", streak: user.streak });
+        } else {
+            console.log("❌ Incorrect answer, streak remains:", user.streak);
+            return res.json({ message: "❌ Incorrect answers! Try again.", streak: user.streak });
+        }
+
+    } catch (error) {
+        console.error("🔥 ERROR in submitStreakAnswers:", error);
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+};
+
+
+
+ 
+
+  //Interview
+
+
+  exports.startInterview = async (req, res) => {
+    const { topic } = req.body;
+    const sessionId = Date.now().toString(); // Unique session ID
   
+    try {
+      const response = await groq.chat.completions.create({
+        messages: [
+          { role: "system", content: `You are an AI interviewer for ${topic}.` },
+          { role: "user", content: `Ask an initial interview question about ${topic}.` },
+        ],
+        model: "llama3-8b-8192",
+      });
+  
+      const initialQuestion = response.choices[0].message.content;
+  
+      // Save session to DB
+      const newSession = new Session({
+        sessionId,
+        topic,
+        questions: [{ question: initialQuestion }],
+      });
+      await newSession.save();
+  
+      res.json({ sessionId, question: initialQuestion });
+    } catch (error) {
+      console.error("Error generating initial question:", error);
+      res.status(500).json({ error: "Failed to generate question" });
+    }
+  };
+
+  exports.answerInterview = async (req, res) => {
+    const { sessionId, answer } = req.body;
+  
+    try {
+      // Find session
+      const session = await Session.findOne({ sessionId });
+      if (!session) return res.status(404).json({ error: "Session not found" });
+  
+      const lastQuestion = session.questions[session.questions.length - 1].question;
+  
+      // Generate a follow-up question based on the user's answer
+      const response = await groq.chat.completions.create({
+        messages: [
+          { role: "system", content: `You are an AI interviewer for ${session.topic}.` },
+          { role: "user", content: `Previous question: "${lastQuestion}". User answered: "${answer}". Ask a logical follow-up question.` },
+        ],
+        model: "llama3-8b-8192",
+      });
+  
+      const followUpQuestion = response.choices[0].message.content;
+  
+      // Update session with the new question
+      session.questions.push({
+        question: lastQuestion,
+        userAnswer: answer,
+        followUp: followUpQuestion,
+      });
+  
+      await session.save();
+  
+      res.json({ followUpQuestion });
+    } catch (error) {
+      console.error("Error generating follow-up question:", error);
+      res.status(500).json({ error: "Failed to generate follow-up question" });
+    }
+  };
+
+
+  exports.endInterview = async (req, res) => {
+    const { sessionId } = req.body;
+    
+    try {
+      const session = await Session.findOne({ sessionId });
+      if (!session) return res.status(404).json({ error: "Session not found" });
+  
+      res.json({ message: "Interview session ended.", sessionData: session });
+    } catch (error) {
+      console.error("Error ending interview:", error);
+      res.status(500).json({ error: "Failed to end interview" });
+    }
+  };
+
+
+  exports.interview = async (req, res) => {
+    try {
+      const { email } = req.query;
+      if (!email) return res.status(400).json({ error: "User email is required" });
+  
+      const interviews = await Interview.find({ email }).sort({ createdAt: -1 });
+      res.json(interviews);
+    } catch (error) {
+      console.error("Error fetching interviews:", error);
+      res.status(500).json({ error: "Server error" });
+    }
+  };
+
+  exports.saveInterview =async (req, res) => {
+  try {
+    const { email, sessionId, topic, chatHistory } = req.body;
+
+    // Validate input
+    if (!email || !sessionId || !topic || !chatHistory) {
+      return res.status(400).json({ error: "❌ Missing required fields" });
+    }
+
+    // Save to MongoDB
+    const newInterview = new Interview({ email, sessionId, topic, chatHistory });
+    await newInterview.save();
+
+    res.status(201).json({ message: "✅ Interview saved successfully" });
+  } catch (error) {
+    console.error("❌ Error saving interview:", error);
+    res.status(500).json({ error: "Server error", details: error.message });
+  }
+}
+
+  exports.updateInterview = async (req, res) => {
+    try {
+      const { sessionId, chatHistory } = req.body;
+      if (!sessionId || !chatHistory) {
+        return res.status(400).json({ error: "Missing sessionId or chatHistory" });
+      }
+  
+      await Interview.findOneAndUpdate({ sessionId }, { chatHistory });
+      res.json({ message: "Interview updated successfully" });
+    } catch (error) {
+      console.error("Error updating interview:", error);
+      res.status(500).json({ error: "Server error" });
+    }
+  };
+
+  exports.deleteInterview = async (req, res) => {
+    try {
+      const { sessionId } = req.query;
+      if (!sessionId) return res.status(400).json({ error: "sessionId is required" });
+  
+      await Interview.findOneAndDelete({ sessionId });
+      res.json({ message: "Interview deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting interview:", error);
+      res.status(500).json({ error: "Server error" });
+    }
+  };
+
+
+
+
+
+  exports.updateStreak = async (req, res) => {
+    const { userId } = req.body;
+    try {
+      let user = await UserStreak.findOne({ userId });
+  
+      if (!user) {
+        user = new UserStreak({ userId, streak: 1, lastAnsweredDate: new Date() });
+      } else {
+        const today = new Date().toISOString().split("T")[0];
+        const lastAnswered = user.lastAnsweredDate ? user.lastAnsweredDate.toISOString().split("T")[0] : null;
+  
+        if (today !== lastAnswered) {
+          user.streak += 1;
+          user.lastAnsweredDate = new Date();
+        }
+      }
+  
+      await user.save();
+      res.json({ streak: user.streak });
+    } catch (error) {
+      res.status(500).json({ error: "Error updating streak" });
+    }
+  };  

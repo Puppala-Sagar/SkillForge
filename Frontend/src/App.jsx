@@ -20,6 +20,7 @@ import "react-toastify/dist/ReactToastify.css"; // Import CSS
 import ProtectedRoute from "./ProtectedRoute";
 import { useAuth } from "./services/AuthService";
 import Streak from "./components/Streak";
+import InterviewApp  from "./components/InterviewApp"
 
 
 const App = () => {
@@ -122,6 +123,14 @@ const App = () => {
               element={
                 <ProtectedRoute condition={false}>
                   <Signup />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/interview"
+              element={
+                <ProtectedRoute condition={true}>
+                   <InterviewApp />
                 </ProtectedRoute>
               }
             />

@@ -21,4 +21,21 @@ router.post('/add-task', userController.addTask);
 
 router.get("/questions",userController.getStreakQuestions);
 router.post("/submit-answer",userController.submitStreakAnswers);
+router.get("/streak",userController.getStreak);
+router.post("/update-streak",userController.updateStreak);
+
+
+//interview
+router.post("/start-interview", userController.startInterview);
+router.post("/answer",userController.answerInterview);
+router.post("/end-interview",userController.endInterview);
+
+router.get("interview",userController.interview);
+router.post("/save-interview",userController.saveInterview);
+router.post("/update-interview",userController.updateInterview);
+router.delete("/delete-interview",userController.deleteInterview);
+
+
+
+
 module.exports = router;

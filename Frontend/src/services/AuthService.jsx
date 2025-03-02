@@ -16,6 +16,8 @@ export const AuthProvider = ({ children }) => {
     name: "",
     email: "",
   });
+
+  const [streak, setStreak] = useState(0);
   const [badges, setBadges] = useState(
     Array.from({ length: 29 }, (_, i) => ({
       id: i + 1,
@@ -83,6 +85,35 @@ export const AuthProvider = ({ children }) => {
     navigate("/login");
   }; 
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+
+        try {
+          const res = await axios.get(`http://localhost:3000/api/streak?userId=${parsedUser.userId}`);
+          setStreak(res.data.streak || 0);
+        } catch (error) {
+          console.error("Error fetching streak:", error);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const updateStreak = async (userId) => {
+    try {
+      const res = await axios.post("http://localhost:3000/api/update-streak", { userId });
+      setStreak(res.data.streak);
+    } catch (error) {
+      console.error("Error updating streak:", error);
+    }
+  };
+
+
   const addBadge = async (id) => {
     // console.log(id);
     setBadges((prevBadges) => {
@@ -98,8 +129,10 @@ export const AuthProvider = ({ children }) => {
     // console.log(badges);
   }
 
+  
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, user, logout, badges, addBadge, setBadges }}>
+    <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, user, logout, badges, addBadge, setBadges,user, setUser, streak, setStreak, updateStreak }}>
       {children}
     </AuthContext.Provider>
   );
